@@ -1,0 +1,16 @@
+{
+  "name": "monnify",
+  "version": "1.0.0",
+  "description": "",
+  "main": "wallet.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [
+    "payments",
+    "wallet",
+    "monnify"
+  ],
+  "author": "Damilare Agbabiaka (aka BlankGodd)",
+  "license": "ISC"
+}
