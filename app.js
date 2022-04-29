@@ -1,290 +1,335 @@
 const https = require('https');
 const fs = require('fs');
+const dotenv = require('dotenv')
+dotenv.config();
 
-const secretKey = process.env.MONNIFY_SECRET_KEY || 'UW3CVMYUZD2AUPJBN7QEFFTX23ZET49N'
-const apiKey = process.env.MONNIFY_API_KEY || 'MK_TEST_329GSK82VC'
-const sourceAccountNumber = process.env.SOURCE_ACCOUNT_NUMBER || 4637221455
+const secretKey = process.env.MONNIFY_SECRET_KEY
+const apiKey = process.env.MONNIFY_API_KEY
 const baseUrl = 'sandbox.monnify.com'
-const accessToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsibW9ubmlmeS12YWx1ZS1hZGRlZC1zZXJ2aWNlIiwibW9ubmlmeS1wYXltZW50LWVuZ2luZSIsIm1vbm5pZnktZGlzYnVyc2VtZW50LXNlcnZpY2UiXSwic2NvcGUiOlsicHJvZmlsZSJdLCJleHAiOjE2NTA5NzY0NjksImF1dGhvcml0aWVzIjpbIk1QRV9NQU5BR0VfTElNSVRfUFJPRklMRSIsIk1QRV9VUERBVEVfUkVTRVJWRURfQUNDT1VOVCIsIk1QRV9JTklUSUFMSVpFX1BBWU1FTlQiLCJNUEVfUkVTRVJWRV9BQ0NPVU5UIiwiTVBFX0NBTl9SRVRSSUVWRV9UUkFOU0FDVElPTiIsIk1QRV9SRVRSSUVWRV9SRVNFUlZFRF9BQ0NPVU5UIiwiTVBFX0RFTEVURV9SRVNFUlZFRF9BQ0NPVU5UIiwiTVBFX1JFVFJJRVZFX1JFU0VSVkVEX0FDQ09VTlRfVFJBTlNBQ1RJT05TIl0sImp0aSI6IjJiODA3MmU4LTk5NTEtNGFjMy05YmMyLWNiYWM4Y2NmNzY2OSIsImNsaWVudF9pZCI6Ik1LX1RFU1RfMzI5R1NLODJWQyJ9.CiqTL5xEXH3I7XUCa22gc6ftXTOlyQ-hE-pdn_3pC8f7X8GtQsyFZx-fJztnjSZJL79hgulvkAgS8vZCQNlN-gcwtB05IxDOqQic2cyX68jx0kWW6S0o4fCS8TIYeJw9_5A5K12K0HLK4QpFuw2pyssOatjoNbqPkFeaES9ryZiYikhiSvucuOPmJVxvCHP2pkdziNXq5foveF3Etxy32LsaCRoU3HOSPIDZihbL5ZgnamjlprdA09lZ2tpLYaEMASc_QNAqADpOxHnF6jnp7Lm2l4Zu6iPV-2S3ub_xtp_EbS70n-__-0--BDezo6cfvIZ7CSURlNcUZgSijh7oGg'
+const sourceAccountNumber = process.env.SOURCE_ACCOUNT_NUMBER
+const accessToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsibW9ubmlmeS12YWx1ZS1hZGRlZC1zZXJ2aWNlIiwibW9ubmlmeS1wYXltZW50LWVuZ2luZSIsIm1vbm5pZnktZGlzYnVyc2VtZW50LXNlcnZpY2UiXSwic2NvcGUiOlsicHJvZmlsZSJdLCJleHAiOjE2NTEyNTMzNjMsImF1dGhvcml0aWVzIjpbIk1QRV9NQU5BR0VfTElNSVRfUFJPRklMRSIsIk1QRV9VUERBVEVfUkVTRVJWRURfQUNDT1VOVCIsIk1QRV9JTklUSUFMSVpFX1BBWU1FTlQiLCJNUEVfUkVTRVJWRV9BQ0NPVU5UIiwiTVBFX0NBTl9SRVRSSUVWRV9UUkFOU0FDVElPTiIsIk1QRV9SRVRSSUVWRV9SRVNFUlZFRF9BQ0NPVU5UIiwiTVBFX0RFTEVURV9SRVNFUlZFRF9BQ0NPVU5UIiwiTVBFX1JFVFJJRVZFX1JFU0VSVkVEX0FDQ09VTlRfVFJBTlNBQ1RJT05TIl0sImp0aSI6IjcyMzMwZmIwLTE5MzMtNDAxNC1hZjRiLWQ4ZTM3YTFhMGU1ZSIsImNsaWVudF9pZCI6Ik1LX1RFU1RfMzI5R1NLODJWQyJ9.NaemFM-3C62m38W6_Q55ddmEaRvxJidPD0BEK87vRXykd5QLn6U0bva9355qCZG1CJZNhoabPk91ByVfMqHn1vSCatSXvE4m2_icFL9kJPGejQs860KzGFYUkIS34Xw6xNERnjlimN--AB8KiYI1bv8mDWHFsEmsP9bwca7H-icLX8OdUv-61-fRMyUwqIQEQbCQSSh6uY3AuZIBYEVO2GjGF_axOiuyg4ZuDd_NitqVORWPFgs_uxwwrFRqmRCsIPJn3Z2bV6DS_ts2pgpMQRe8sJpIioDPEW-lWChrBA02CxlfxcLOkE_ljK366oKf1JKBccvetYgMayOjbm7b1w'
 
 
-async function makeRequest(method, path, headers, requestBody) {
-    try {
-        const options = {
-            hostname: baseUrl,
-            port: 443,
-            path: path,
-            method: method,
-            headers: headers
-        };
-        let p = new Promise((resolve, reject) => {
-            const req = https.request(options, (res) => {
-                let data = '';
-                res.on('data', (d) => {
-                    data += d;
+class Monnify {
+    constructor(secretKey, apiKey, baseUrl) {
+        this.secretKey = secretKey;
+        this.apiKey = apiKey;
+        this.baseUrl = baseUrl;
+    }
+
+    async makeRequest(method, path, headers, requestBody) {
+        try {
+            const options = {
+                hostname: this.baseUrl,
+                port: 443,
+                path: path,
+                method: method,
+                headers: headers
+            };
+            let p = new Promise((resolve, reject) => {
+                const req = https.request(options, (res) => {
+                    let data = '';
+                    res.on('data', (d) => {
+                        data += d;
+                    });
+                    res.on('end', () => {
+                        resolve(JSON.parse(data));
+                    });
+                }).on('error', (error) => {
+                    reject(error);
                 });
-                res.on('end', () => {
-                    resolve(JSON.parse(data));
-                });
-            }).on('error', (error) => {
-                reject(error);
+                if (typeof (requestBody) !== 'undefined') {
+                    req.write(JSON.stringify(requestBody));
+                }
+                req.end();
             });
-            if (typeof (requestBody) !== 'undefined') {
-                req.write(JSON.stringify(requestBody));
-            }
-            req.end();
-        });
-        return await p
-    } catch (error) {
-        console.log(error)
-        return error
+            return await p
+        } catch (error) {
+            console.log(error)
+            return error
+        }
+    }
+
+    // to generate token
+    async genToken() {
+        const key = Buffer.from(this.apiKey + ':' + this.secretKey).toString('base64')
+        let path = '/api/v1/auth/login'
+        const headers = {
+            'Authorization': `Basic ${key}`
+        }
+        const data = await this.makeRequest('POST', path, headers)
+        return data.responseBody.accessToken
+    }
+
+    // to reserve an account
+    async reserveAccount(accessToken, requestBody) {
+        let path = '/api/v2/bank-transfer/reserved-accounts'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody)
+        return data;
+    }
+
+    // to get list of all banks
+    async getBanks(accessToken) {
+        let path = '/api/v1/banks'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`
+        }
+        const data = await this.makeRequest('GET', path, headers)
+        return data
+    }
+
+    // to make single outbound transfer
+    async singleOutboundTransfer(accessToken, requestBody) {
+        let path = '/api/v2/disbursements/single'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await makeRequest('POST', path, headers, requestBody)
+        return data
+    }
+
+    // to make bulk outbound transfer
+    async bulkOutboundTransfer(accessToken, requestBody) {
+        let path = '/api/v2/disbursements/batch'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody)
+        return data
+    }
+
+    // to authorize single outbound transfer 
+    async authorizeSingleTransfer(accessToken, requestBody) {
+        let path = '/api/v2/disbursements/authorize-transfer'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody);
+        return data;
+    }
+
+    // to authorize bulk outbound transfer 
+    async authorizeBulkTransfer(accessToken, requestBody) {
+        let path = '/api/v2/disbursements/batch/validate-otp'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody)
+        return data
+    }
+
+    // resend OTP
+    async resendOtp(accessToken, requestBody) {
+        let path = '/api/v2/disbursements/single/resend-otp'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody)
+        return data
+    }
+
+    // to get single outbound transfer status
+    async getSingleTransferStatus(accessToken, reference) {
+        let path = `/api/v2/disbursements/single/summary?reference=${reference}`
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`
+        }
+        const data = await this.makeRequest('GET', path, headers)
+        return data
+    }
+
+    // to get bulk outbound transfer status
+    async getBulkTransferStatus(accessToken, reference) {
+        let path = `/api/v2/disbursements/batch/summary?reference=${reference}`
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`
+        }
+        const data = await this.makeRequest('GET', path, headers)
+        return data
+    }
+
+    // to get merchant account wallet balance
+    async getWalletBalance(accessToken, accountNumber) {
+        let path = `/api/v2/disbursements/wallet-balance?accountNumber=${accountNumber}`
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`
+        }
+        const data = await this.makeRequest('GET', path, headers)
+        return data
+    }
+
+    // to get reserved account details
+    async getAccountDetails(accessToken, reference) {
+        let path = `/api/v2/bank-transfer/reserved-accounts/${reference}`
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`
+        }
+        const data = await this.makeRequest('GET', path, headers)
+        return data
+    }
+
+    // for merchant to receive payments
+    async initiatePayment(accessToken, requestBody) {
+        let path = '/api/v1/merchant/transactions/init-transaction'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody)
+        return data
+    }
+
+    async payWithBankTransfer(accessToken, requestBody) {
+        let path = '/api/v1/merchant/bank-transfer/init-payment'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody)
+        return data
+    }
+
+    async payWithCard(accessToken, requestBody) {
+        let path = '/api/v1/merchant/cards/charge'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody)
+        return data
+    }
+
+
+    async authorizeOtpForCard(accessToken, requestBody) {
+        let path = '/api/v1/merchant/cards/otp/authorize'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody)
+        return data
+    }
+
+    async chargeCardToken(accessToken, requestBody) {
+        let path = '/api/v1/merchant/cards/charge-card-token'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody)
+        return data
+    }
+
+    async deleteReservedAccount(accessToken, accountReference) {
+        let path = `/api/v1/bank-transfer/reserved-accounts/reference/${accountReference}`
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`
+        }
+        const data = await this.makeRequest('DELETE', path, headers)
+        return data
+    }
+
+    async createLimitProfile(accessToken, requestBody) {
+        let path = '/api/v1/limit-profile/'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody)
+        return data
+    }
+
+    async updateLimitProfile(accessToken, limitProfileCode, requestBody) {
+        let path = `/api/v1/limit-profile/${limitProfileCode}`
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('PUT', path, headers, requestBody)
+        return data
+    }
+
+    async getLimitProfiles(accessToken) {
+        let path = '/api/v1/limit-profile/'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`
+        }
+        const data = await this.makeRequest('GET', path, headers)
+        return data
+    }
+
+
+    async reserveAccountWithLimit(accessToken, requestBody) {
+        let path = '/api/v1/bank-transfer/reserved-accounts/limit'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody)
+        return data
+    }
+
+
+    async updateReserveAccountLimit(accessToken, requestBody) {
+        let path = '/api/v1/bank-transfer/reserved-accounts/limit'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('PUT', path, headers, requestBody)
+        return data
+    }
+
+    async initiateRefund(accessToken, requestBody) {
+        let path = '/api/v1/refunds/initiate-refund'
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': "application/json"
+        }
+        const data = await this.makeRequest('POST', path, headers, requestBody)
+        return data
+    }
+
+    async getAllRefunds(accessToken, page, size) {
+        let path = `/api/v1/refunds?page=${page}&size=${size}`
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`
+        }
+        const data = await this.makeRequest('GET', path, headers)
+        return data
+    }
+
+    async getRefundStatus(accessToken, refundReference) {
+        let path = `/api/v1/refunds/${refundReference}`
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`
+        }
+        const data = await this.makeRequest('GET', path, headers)
+        return data
+    }
+
+    async validateBankAccount(accessToken, accountNumber, bankCode) {
+        let path = `/api/v1/disbursements/account/validate?accountNumber=${accountNumber}&bankCode=${bankCode}`
+        let headers = {
+            'Authorization': `Bearer ${accessToken}`
+        }
+        const data = await this.makeRequest('GET', path, headers)
+        return data
     }
 }
 
-async function genToken() {
-    const key = Buffer.from(apiKey + ':' + secretKey).toString('base64')
-    let path = '/api/v1/auth/login'
-    const headers = {
-        'Authorization': `Basic ${key}`
-    }
-    const data = await makeRequest('POST', path, headers)
-    console.log(data)
-}
-
-async function reserveAccount(requestBody) {
-    let path = '/api/v2/bank-transfer/reserved-accounts'
-    let headers = {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': "application/json"
-    }
-    const data = await makeRequest('POST', path, headers, requestBody)
-    console.log(data)
-}
-
-async function getAccountDetails(accountRef) {
-    let path = `/api/v2/bank-transfer/reserved-accounts/${accountRef}`
-    let headers = {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': "application/json"
-    }
-    const data = await makeRequest('GET', path, headers)
-    console.log(data)
-}
-
-async function getBanks() {
-    let path = '/api/v1/banks'
-    let headers = {
-        'Authorization': `Bearer ${accessToken}`
-    }
-    const data = await makeRequest('GET', path, headers)
-    // console.log(data)
-    return data
-}
-
-async function singleOutboundTransfer(requestBody) {
-    let path = '/api/v2/disbursements/single'
-    let headers = {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': "application/json"
-    }
-    const data = await makeRequest('POST', path, headers)
-    console.log(data)
-}
-
-async function bulkOutboundTransfer(requestBody) {
-    let path = '/api/v2/disbursements/batch'
-    let headers = {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': "application/json"
-    }
-    const data = await makeRequest('POST', path, headers, requestBody)
-    console.log(data)
-}
-
-async function authorizeSingleTransfer(requestBody) {
-    let path = '/api/v2/disbursements/authorize-transfer'
-    let headers = {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': "application/json"
-    }
-    const data = await makeRequest('POST', path, headers, requestBody);
-    console.log(data);
-}
-
-async function authorizeBulkTransfer(requestBody) {
-    let path = '/api/v2/disbursements/batch/validate-otp'
-    let headers = {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': "application/json"
-    }
-    const data = await makeRequest('POST', path, headers, requestBody)
-    console.log(data)
-}
-
-async function getSingleTransferStatus(reference) {
-    let path = `/api/v2/disbursements/single/summary?reference=${reference}`
-    let headers = {
-        'Authorization': `Bearer ${accessToken}`
-    }
-    const data = await makeRequest('GET', path, headers)
-    console.log(data)
-}
-
-async function getBulkTransferStatus(reference) {
-    let path = `/api/v2/disbursements/batch/summary?reference=${reference}`
-    let headers = {
-        'Authorization': `Bearer ${accessToken}`
-    }
-    const data = await makeRequest('GET', path, headers)
-    console.log(data)
-}
-
-async function getWalletBalance() {
-    let path = `/api/v2/disbursements/wallet-balance?accountNumber=${sourceAccountNumber}`
-    let headers = {
-        'Authorization': `Bearer ${accessToken}`
-    }
-    const data = await makeRequest('GET', path, headers)
-    console.log(data)
-}
-
-async function getAccountDetails(reference) {
-    let path = `/api/v2/bank-transfer/reserved-accounts/${reference}`
-    let headers = {
-        'Authorization': `Bearer ${accessToken}`
-    }
-    const data = await makeRequest('GET', path, headers)
-    console.log(data)
-}
 
 
 
 
-///////////////////////////////////////////////
-
-// getWalletBalance()
-
-getAccountDetails('US-43s58059uw')
-
-// let requestBody = {
-//     "accountReference": "US-43s58059uw",
-//     "accountName": "BlankGodd4",
-//     "currencyCode": "NGN",
-//     "contractCode": "1671903846",
-//     "customerEmail": "blankgodd33@gmail.com",
-//     "bvn": "21212121212",
-//     "customerName": "Blank Godd",
-//     "getAllAvailableBanks": true
-// }
-// reserveAccount(requestBody)
-
-// genToken()
-// getAccountDetails('bg')
 
 
-// async function getBanksss() {
-//     let banks = await getBanks()
-//     console.log(banks)
-
-//     var jsonBanks = JSON.stringify(banks.responseBody);
-//     console.log(jsonBanks);
-
-//     fs.writeFile("output.json", jsonBanks, 'utf8', (err) => {
-//         if (err) {
-//             console.log("An error occured while writing JSON Object to File.");
-//             return console.log(err);
-//         }
-
-//         console.log("JSON file has been saved.");
-//     });
-// }
-// getBanksss()
-
-// function filterBankNames() {
-//     let rawData = fs.readFileSync('output.json');
-//     let banks = JSON.parse(rawData);
-//     let names = []
-//     for (let bank of banks) {
-//         names.push(bank.name)
-//     }
-//     console.log(names)
-
-// }
-
-// filterBankNames()
-
-// function getBankCode(bankName) {
-//     let rawData = fs.readFileSync('output.json');
-//     let banks = JSON.parse(rawData);
-//     for (let bank of banks) {
-//         if (bank.name === bankName) return bank.code;
-//     }
-
-// }
-
-// console.log(getBankCode('Access bank'))
-
-// let requestBody = {
-//     "amount": 1000,
-//     "reference": "TS-00001",
-//     "narration": "1st Transaction",
-//     "destinationBankCode": "035",
-//     "destinationAccountNumber": "5000657769",
-//     "currency": "NGN",
-//     "sourceAccountNumber": sourceAccountNumber
-// }
-
-
-// let requestBody = {
-//     "amount": 100,
-//     "reference": "references133",
-//     "narration": "911 Transaction",
-//     "destinationBankCode": "033",
-//     "destinationAccountNumber": "2165361806",
-//     "currency": "NGN",
-//     "sourceAccountNumber": sourceAccountNumber
-// }
-// singleOutboundTransfer(requestBody)
-
-// let requestBody = {
-//     "reference": "references133",
-//     "authorizationCode": "061116"
-// }
-// authorizeTransfer(requestBody);
-
-
-// let requestBody = {
-//     "title": "Game of Batches",
-//     "batchReference": "batchreference12934",
-//     "narration": "911 Transaction",
-//     "sourceAccountNumber": sourceAccountNumber,
-//     "onValidationFailure": "CONTINUE",
-//     "notificationInterval": 100,
-//     "transactionList": [
-//         {
-//             "amount": 570,
-//             "reference": "Final-Reference-2a",
-//             "narration": "911 Transaction",
-//             "destinationBankCode": "044",
-//             "destinationAccountNumber": "1232553353",
-//             "currency": "NGN"
-//         },
-//         {
-//             "amount": 230,
-//             "reference": "Final-Reference-3a",
-//             "narration": "911 Transaction",
-//             "destinationBankCode": "033",
-//             "destinationAccountNumber": "2165361806",
-//             "currency": "NGN"
-//         }
-//     ]
-// }
-// bulkOutboundTransfer(requestBody)
-
-// let requestBody = {
-//     "reference": "batchreference12934",
-//     "authorizationCode": "607753"
-// }
-// authorizeBulkTransfer(requestBody)
-
-// getBulkTransferStatus('batchreference12934')

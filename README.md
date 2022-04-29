@@ -1,2 +1,5 @@
 # monnify
-Monnify node wrapper
+
+
+### Installation
+npm install 
