@@ -54,7 +54,7 @@ async function testMonnify() {
     
     ...
 
-    const banks = awauit m.getBanks();
+    const banks = await m.getBanks();
 
 }
 ```
