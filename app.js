@@ -52,7 +52,6 @@ class Monnify {
             'Authorization': `Basic ${key}`
         }
         const data = await this.makeRequest('POST', path, headers)
-        await sleep(1000)
         this.accessToken = data.responseBody.accessToken
         // return data.responseBody.accessToken
     }
