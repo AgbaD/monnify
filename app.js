@@ -1,4 +1,6 @@
 const https = require('https');
+const { promisify } = require('util')
+const sleep = promisify(setTimeout)
 
 class Monnify {
 
@@ -50,7 +52,7 @@ class Monnify {
             'Authorization': `Basic ${key}`
         }
         const data = await this.makeRequest('POST', path, headers)
-        console.log(data)
+        await sleep(1000)
         this.accessToken = data.responseBody.accessToken
         // return data.responseBody.accessToken
     }

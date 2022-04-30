@@ -14,7 +14,7 @@ For more information, please check the monnify documentation [here](https://team
 
 ## How to use
 
-To get started, we need to import and instantiate our package. When instantiating, we need to pass our `secretKey` and `apiKey` which can be found on the monnify dashboard along with our `baseUrl` which is either the sandbox or production url for monnify API. Note that all methods are asynchronous so you have to make use of the `await` keyword when calling them.
+To get started, we need to import and instantiate our package. When instantiating, we need to pass our `secretKey` and `apiKey` which can be found on the monnify dashboard along with our `baseUrl` which is either the sandbox or production url for monnify API. Note that all methods are asynchronous so you have to make use of the `async` function or the `then` callback when calling them.
 
 ```js
 const Monnify = require('monnify-nodejs')
