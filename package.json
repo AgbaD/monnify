@@ -1,6 +1,6 @@
 {
   "name": "monnify-nodejs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple wrapper to leverage monnify's payment gateway for businesses to accept payments from customers, either on a recurring or one-time basis. It offers an easier and faster way for integration with monnify API on you web and mobile applications from within your node application.",
   "main": "app.js",
   "repository": {
