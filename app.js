@@ -8,7 +8,6 @@ class Monnify {
         this.secretKey = secretKey;
         this.apiKey = apiKey;
         this.baseUrl = baseUrl;
-        this.accessToken = null;
     }
 
     async makeRequest(method, path, headers, requestBody) {
@@ -53,7 +52,7 @@ class Monnify {
         }
         const data = await this.makeRequest('POST', path, headers)
         // this.accessToken = data.responseBody.accessToken
-        return data.responseBody.accessToken
+        return data
     }
 
     // to reserve an account
