@@ -8,7 +8,7 @@ class Monnify {
         this.secretKey = secretKey;
         this.apiKey = apiKey;
         this.baseUrl = baseUrl;
-        this.accessToken = this.genToken()
+        this.accessToken = null;
     }
 
     async makeRequest(method, path, headers, requestBody) {
