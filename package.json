@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/AgbaD/monnify/issues"
   },
-  "homepage": "https://github.com/AgbaD/monnify#readme"
+  "homepage": "https://github.com/AgbaD/monnify#readme",
+  "dependencies": {
+    "axios": "^0.27.2"
+  }
 }
